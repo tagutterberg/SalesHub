@@ -1,17 +1,36 @@
 const express = require('express');
 const router = express.Router();
+const {
+  getEmailSettings,
+  updateEmailSettings,
+  testEmail
+} = require('../controllers/emailSettingsController');
+const { validateEmailSettings } = require('../middleware/validation');
+const { body } = require('express-validator');
 
 /**
- * Email Settings Routes
- * @todo Implement full controller methods in Phase 2
+ * @route   GET /api/settings/email
+ * @desc    Get email settings
+ * @access  Public
  */
+router.get('/', getEmailSettings);
 
-router.get('/', (req, res) => {
-  res.json({ success: true, data: {}, message: 'Email settings endpoints - Coming in Phase 2' });
-});
+/**
+ * @route   PUT /api/settings/email
+ * @desc    Update email settings
+ * @access  Public
+ */
+router.put('/', validateEmailSettings, updateEmailSettings);
 
-router.put('/', (req, res) => {
-  res.json({ success: true, message: 'Email settings endpoints - Coming in Phase 2' });
-});
+/**
+ * @route   POST /api/settings/email/test
+ * @desc    Test email configuration by sending a test email
+ * @access  Public
+ */
+router.post(
+  '/test',
+  body('test_email').notEmpty().withMessage('Test email is required').isEmail().withMessage('Must be a valid email address'),
+  testEmail
+);
 
 module.exports = router;
