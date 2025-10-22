@@ -10,6 +10,7 @@ const path = require('path');
 const { testConnection, initializeDatabase } = require('./config/database');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { createUploadDirs } = require('./middleware/upload');
+const { startAllJobs, stopAllJobs } = require('./services/cronService');
 
 /**
  * Create Express Application
@@ -102,6 +103,7 @@ app.use('/api/settings/email', require('./routes/emailSettings'));
 app.use('/api/emails', require('./routes/emails'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/reports', require('./routes/reports'));
+app.use('/api/cron', require('./routes/cronJobs'));
 
 /**
  * 404 Handler
@@ -137,6 +139,12 @@ const startServer = async () => {
     console.log('📁 Creating upload directories...');
     createUploadDirs();
 
+    // Start cron jobs (if not in test mode)
+    if (process.env.NODE_ENV !== 'test' && process.env.ENABLE_CRON !== 'false') {
+      console.log('⏰ Starting scheduled tasks...');
+      startAllJobs();
+    }
+
     // Start listening
     app.listen(PORT, () => {
       console.log('\n✅ Server is running successfully!');
@@ -158,6 +166,7 @@ const startServer = async () => {
       console.log('   - Email Operations: /api/emails');
       console.log('   - Dashboard: /api/dashboard');
       console.log('   - Reports: /api/reports');
+      console.log('   - Cron Jobs: /api/cron');
       console.log('\n👨‍💻 Ready to accept requests!\n');
     });
 
@@ -188,11 +197,13 @@ process.on('unhandledRejection', (reason, promise) => {
  */
 process.on('SIGTERM', () => {
   console.log('👋 SIGTERM signal received: closing HTTP server');
+  stopAllJobs();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   console.log('👋 SIGINT signal received: closing HTTP server');
+  stopAllJobs();
   process.exit(0);
 });
 
