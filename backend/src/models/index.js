@@ -12,6 +12,8 @@ const Invoice = require('./Invoice');
 const EmailTemplate = require('./EmailTemplate');
 const EmailLog = require('./EmailLog');
 const EmailSettings = require('./EmailSettings');
+const User = require('./User');
+const AuditLog = require('./AuditLog');
 
 /**
  * Define Model Relationships
@@ -83,6 +85,17 @@ Invoice.belongsTo(SalesOrderConfirmation, {
   as: 'sales_order_confirmation'
 });
 
+// User <-> AuditLog (One-to-Many)
+User.hasMany(AuditLog, {
+  foreignKey: 'user_id',
+  as: 'audit_logs',
+  onDelete: 'SET NULL'
+});
+AuditLog.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
 /**
  * Export all models and sequelize instance
  */
@@ -98,5 +111,7 @@ module.exports = {
   Invoice,
   EmailTemplate,
   EmailLog,
-  EmailSettings
+  EmailSettings,
+  User,
+  AuditLog
 };

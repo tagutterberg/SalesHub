@@ -407,6 +407,72 @@ export const cronJobsApi = {
     apiClient.post(`/cron/trigger/${jobName}`),
 };
 
+// Authentication API
+export const authApi = {
+  login: (email: string, password: string) =>
+    apiClient.post<{ success: boolean; data: { user: any; token: string } }>('/auth/login', { email, password }),
+
+  register: (data: { email: string; password: string; first_name: string; last_name: string }) =>
+    apiClient.post<{ success: boolean; data: { user: any; token: string } }>('/auth/register', data),
+
+  getMe: () =>
+    apiClient.get<{ success: boolean; data: any }>('/auth/me'),
+
+  updateProfile: (data: { first_name?: string; last_name?: string; email?: string }) =>
+    apiClient.put<{ success: boolean; data: any }>('/auth/profile', data),
+
+  changePassword: (current_password: string, new_password: string) =>
+    apiClient.put<{ success: boolean; message: string }>('/auth/change-password', { current_password, new_password }),
+
+  logout: () =>
+    apiClient.post<{ success: boolean; message: string }>('/auth/logout'),
+};
+
+// Users API (Admin only)
+export const usersApi = {
+  getAll: (params?: { page?: number; limit?: number; search?: string; role?: string; is_active?: boolean }) =>
+    apiClient.get<PaginatedResponse<any>>('/users', { params }),
+
+  getById: (id: number) =>
+    apiClient.get<{ success: boolean; data: any }>(`/users/${id}`),
+
+  create: (data: { email: string; password: string; first_name: string; last_name: string; role?: string }) =>
+    apiClient.post<{ success: boolean; data: any }>('/users', data),
+
+  update: (id: number, data: { email?: string; first_name?: string; last_name?: string; role?: string; is_active?: boolean }) =>
+    apiClient.put<{ success: boolean; data: any }>(`/users/${id}`, data),
+
+  delete: (id: number) =>
+    apiClient.delete<{ success: boolean; message: string }>(`/users/${id}`),
+
+  resetPassword: (id: number, new_password: string) =>
+    apiClient.post<{ success: boolean; message: string }>(`/users/${id}/reset-password`, { new_password }),
+};
+
+// Audit Logs API
+export const auditLogsApi = {
+  getAll: (params?: {
+    page?: number;
+    limit?: number;
+    user_id?: number;
+    action?: string;
+    resource_type?: string;
+    status?: string;
+    start_date?: string;
+    end_date?: string;
+  }) =>
+    apiClient.get<PaginatedResponse<any>>('/audit-logs', { params }),
+
+  getById: (id: number) =>
+    apiClient.get<{ success: boolean; data: any }>(`/audit-logs/${id}`),
+
+  getUserActivity: (userId: number, params?: { page?: number; limit?: number }) =>
+    apiClient.get<PaginatedResponse<any>>(`/audit-logs/user/${userId}`, { params }),
+
+  getStats: (params?: { start_date?: string; end_date?: string }) =>
+    apiClient.get<{ success: boolean; data: any }>('/audit-logs/stats', { params }),
+};
+
 // Helper function to download blob files
 export const downloadFile = (blob: Blob, filename: string) => {
   const url = window.URL.createObjectURL(blob);

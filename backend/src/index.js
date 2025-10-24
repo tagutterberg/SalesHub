@@ -104,6 +104,9 @@ app.use('/api/emails', require('./routes/emails'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/cron', require('./routes/cronJobs'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/audit-logs', require('./routes/auditLogs'));
 
 /**
  * 404 Handler
@@ -153,6 +156,9 @@ const startServer = async () => {
       console.log(`📚 API Base URL: http://localhost:${PORT}/api`);
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log('\n📖 API Documentation:');
+      console.log('   - Authentication: /api/auth');
+      console.log('   - Users: /api/users');
+      console.log('   - Audit Logs: /api/audit-logs');
       console.log('   - Vessels: /api/vessels');
       console.log('   - Tankers: /api/tankers');
       console.log('   - Voyages: /api/voyages');
